@@ -43,10 +43,10 @@ object Day5 extends App {
   // Calculate points from vector
   def getPointsFromVector(orig: Point, dest: Point): List[Point] = {
     // println(s"points from vector $orig $dest")
-    val vertical = (x: Int, y: Int) => Point(x, y + 1)
-    val horizontal = (x: Int, y: Int) => Point(x + 1, y)
-
-    val useFunction = if (orig.x == dest.x) vertical else horizontal
+    val useFunction = if (orig.x == dest.x) verticalCompute
+    else if (orig.y == dest.y) horizontalCompute
+    else if (orig.x < dest.x && orig.y < dest.y) diagonalDownCompute
+    else diagonalUpCompute
 
     def loop(lastPoint: Point, acc: List[Point], func: (Int, Int) => Point): List[Point] = {
       // calculate point
@@ -55,8 +55,15 @@ object Day5 extends App {
       else loop(currentPoint, acc :+ currentPoint, func)
     }
 
-    if (orig.x != dest.x && orig.y != dest.y) List.empty // Diagonal
-    else if (orig.equals(dest)) List(orig) // Same point
-    else loop(orig, List(orig), useFunction) // Horizontal / Vertical
+    if (orig.equals(dest)) List(orig) // Same point
+    else loop(orig, List(orig), useFunction) // Horizontal / Vertical / Diagonal
   }
+
+  private def horizontalCompute: (Int, Int) => Point = (x: Int, y: Int) => Point(x + 1, y)
+
+  private def verticalCompute: (Int, Int) => Point = (x: Int, y: Int) => Point(x, y + 1)
+
+  private def diagonalDownCompute: (Int, Int) => Point = (x: Int, y: Int) => Point(x + 1, y + 1)
+
+  private def diagonalUpCompute: (Int, Int) => Point = (x: Int, y: Int) => Point(x + 1, y - 1)
 }
