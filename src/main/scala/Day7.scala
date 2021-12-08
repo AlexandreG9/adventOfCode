@@ -14,20 +14,9 @@ object Day7 extends App {
 
   val allIndex = List.range(0, indexes.reverse.head)
 
-
   val start = System.currentTimeMillis()
 
   val future = Future.sequence(allIndex.map(computeFuel(indexes, _)))
-
-  /*.onComplete(m => {
-  m match {
-    case Failure(exception) => println(s"fail $exception")
-    case Success(value) => {
-      val fuel = value.reduce((a, b) => if(a.fuel > b.fuel) b else a)
-      println(fuel)
-    }
-  }
-})*/
 
 
   val result = Await.result(future, Duration(10, MINUTES)).reduce((a, b) => if (a.fuel > b.fuel) b else a)
@@ -35,10 +24,16 @@ object Day7 extends App {
   val computeTime = System.currentTimeMillis() - start
 
   println(result)
-  println(s"Computed in $computeTime ms")
+  println(s"Computed in $computeTime ms") // Computed in 5610 ms
 
 
-  def computeFuelForOne(orig: Int, dest: Int): Int = Math.abs(dest - orig)
+  def computeFuelForOne(orig: Int, dest: Int): Int = {
+    val dist = Math.abs(dest - orig)
+
+    val step = List.range(1, dist + 1)
+
+    step.foldLeft(0)((a,b) => a + b)
+  }
 
   def computeFuel(allCrab: List[Int], desiredPosition: Int): Future[FuelConsumption] = Future {
     val fuel = allCrab.map(computeFuelForOne(_, desiredPosition)).reduce(_ + _)
