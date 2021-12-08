@@ -1,8 +1,7 @@
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration.{Duration, DurationInt, MINUTES}
+import scala.concurrent.duration.{Duration, MINUTES}
 import scala.concurrent.{Await, Future}
 import scala.io.Source
-import scala.util.{Failure, Success}
 
 case class FuelConsumption(index: Int, fuel: Int)
 
@@ -32,7 +31,7 @@ object Day7 extends App {
 
     val step = List.range(1, dist + 1)
 
-    step.foldLeft(0)((a,b) => a + b)
+    step.foldLeft(0)((a, b) => a + b)
   }
 
   def computeFuel(allCrab: List[Int], desiredPosition: Int): Future[FuelConsumption] = Future {
