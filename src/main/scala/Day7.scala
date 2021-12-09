@@ -18,7 +18,7 @@ object Day7 extends App {
   val future = Future.sequence(allIndex.map(computeFuel(indexes, _)))
 
 
-  val result = Await.result(future, Duration(10, MINUTES)).reduce((a, b) => if (a.fuel > b.fuel) b else a)
+  val result = Await.result(future, Duration(10, MINUTES)).minBy(_.fuel)
 
   val computeTime = System.currentTimeMillis() - start
 
@@ -28,14 +28,18 @@ object Day7 extends App {
 
   def computeFuelForOne(orig: Int, dest: Int): Int = {
     val dist = Math.abs(dest - orig)
+<<<<<<< Updated upstream
 
     val step = List.range(1, dist + 1)
 
     step.foldLeft(0)((a, b) => a + b)
+=======
+    dist * (dist + 1) / 2
+>>>>>>> Stashed changes
   }
 
   def computeFuel(allCrab: List[Int], desiredPosition: Int): Future[FuelConsumption] = Future {
-    val fuel = allCrab.map(computeFuelForOne(_, desiredPosition)).reduce(_ + _)
+    val fuel = allCrab.map(computeFuelForOne(_, desiredPosition)).sum
     FuelConsumption(desiredPosition, fuel)
   }
 
