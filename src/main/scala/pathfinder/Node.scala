@@ -1,0 +1,7 @@
+package pathfinder
+
+class Node() {
+
+
+
+}
