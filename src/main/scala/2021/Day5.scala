@@ -1,6 +1,6 @@
 import scala.io.Source
 
-case class Point(x: Int, y: Int)
+case class Point(x: Int, y: Int, value: Int = 0)
 
 object Day5 extends App {
   val filename = "input-day5.txt"

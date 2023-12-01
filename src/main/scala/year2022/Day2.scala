@@ -6,15 +6,15 @@ import year2022.utils.FileUtils.readLine
 trait Result {
   def getScore: Int
 }
-case object Win extends Result {
+case class Win() extends Result {
   override def getScore: Int = 6
 }
 
-case object Draw extends Result {
+case class Draw() extends Result {
   override def getScore: Int = 3
 }
 
-case object Lose extends Result {
+case class Lose() extends Result {
   override def getScore: Int = 0
 }
 
@@ -26,37 +26,37 @@ trait GameAction {
 
 object GameAction {
   def fromChar(value: Char): GameAction = {
-    if (value == 'A' || value == 'X') Rock
-    else if (value == 'B' || value == 'Y') Paper
-    else Scissors
+    if (value == 'A' || value == 'X') Rock()
+    else if (value == 'B' || value == 'Y') Paper()
+    else Scissors()
   }
 }
 
-case object Scissors extends GameAction {
+case class Scissors() extends GameAction {
   override def against(opponentAction: GameAction): Result = opponentAction match {
-    case Paper => Win
-    case Rock => Lose
-    case Scissors => Draw
+    case Paper() => Win()
+    case Rock() => Lose()
+    case Scissors() => Draw()
     case _ => throw new IllegalArgumentException("unknown value")
   }
 
   override def getActionPoint: Int = 3
 }
-case object Rock extends GameAction {
+case class Rock() extends GameAction {
   override def against(opponentAction: GameAction): Result = opponentAction match {
-    case Paper => Lose
-    case Rock => Draw
-    case Scissors => Win
+    case Paper() => Lose()
+    case Rock() => Draw()
+    case Scissors() => Win()
     case _ => throw new IllegalArgumentException("unknown value")
   }
 
   override def getActionPoint: Int = 1
 }
-case object Paper extends GameAction {
+case class Paper() extends GameAction {
   override def against(opponentAction: GameAction): Result = opponentAction match {
-    case Paper => Draw
-    case Rock => Win
-    case Scissors => Lose
+    case Paper() => Draw()
+    case Rock() => Win()
+    case Scissors() => Lose()
     case _ => throw new IllegalArgumentException("unknown value")
   }
 
