@@ -1,7 +1,9 @@
 package year2022.utils
 
 import cats.effect.{IO, Resource}
+
 import java.io._
+import scala.io.Source
 
 object FileUtils {
 
@@ -19,6 +21,15 @@ object FileUtils {
         def getValue(): Seq[String] = if (bufferedReader.ready()) Seq(bufferedReader.readLine()) ++ getValue() else Nil
         IO(getValue())
       })
+  }
+
+  def readWholeFile(path:String): IO[String] = IO {
+    val file = Source.fromFile(path)
+    try {
+      file.mkString
+    } finally {
+      file.close()
+    }
   }
 
 }
