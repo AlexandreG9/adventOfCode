@@ -15,8 +15,6 @@ object Day4 extends IOApp.Simple {
     }
   }
 
-  case class CardSimulation(computedCards: List[Card], newCards: List[Card])
-
   def readCard(line: String): Card = {
     val cardId = """Card +(\d+)""".r.findFirstMatchIn(line).map(_.group(1).toInt)
 
