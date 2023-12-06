@@ -19,6 +19,16 @@ object Day5 extends IOApp.Simple {
 
   case class SeedRange(start: Long, end: Long) {
     def contains(value: Long): Boolean = value >= start && value <= end
+
+    def intersectRange(other: SeedRange): Option[SeedRange] = {
+      if (other.start > end || other.end < start) {
+        None
+      } else {
+        val newStart = Math.max(start, other.start)
+        val newEnd = Math.min(end, other.end)
+        Some(SeedRange(newStart, newEnd))
+      }
+    }
   }
 
   case class Range(destinationStart: Long, sourceStart: Long, length: Long) {
@@ -50,6 +60,7 @@ object Day5 extends IOApp.Simple {
       }
     }
 
+
     // not used
     def upwardAll(value: Long, destination: String = "location"): Long = {
       // println(s"upwardAll: $destination $value")
@@ -58,20 +69,72 @@ object Day5 extends IOApp.Simple {
         case Some(map) => upwardAll(map.translate(value), map.origin)
         case None => value
       }
-    }
- /**
-    def findIntervalForMinimumLocation(): InputRange = {
-      val locationMap = maps.find(_.destination == "location").get
-      val minDestinationRange = locationMap.ranges.sortBy(_.destinationStart).flatMap(possibleMinRange => {
-        val foundedSeeds = (possibleMinRange.sourceStart to possibleMinRange.sourceStart + possibleMinRange.length).map(upwardAll(_)).toList
-        foundedSeeds
-      }).toSet
 
-      println(s"foundedSeeds: ${minDestinationRange.size}")
-      println(s"foundedSeeds: ${minDestinationRange}")
-      ???
     }
-*/
+
+    def findFitRangeForSeedRange(seedRange: SeedRange): Unit = {
+      def getNonMatchingIntersectionRange(seedRange: SeedRange, fitRange: List[SeedRange]): List[SeedRange] = {
+        // Need to rework, Output must be (45, 50)
+        val minLimit = seedRange.start
+        val maxLimit = seedRange.end
+
+        val sortedFitRange = fitRange.sortBy(_.start)
+        sortedFitRange.foldLeft((List.empty[SeedRange], None: Option[SeedRange]))((acc, range) => {
+          val (accRanges, maybePreviousRange) = acc
+
+          maybePreviousRange match {
+            case Some(lastRange) => {
+              if (lastRange.end < range.start) {
+                val newRange = SeedRange(lastRange.end, Math.min(range.start, maxLimit))
+                ((accRanges :+ newRange), Some(range))
+              } else {
+                (accRanges, Some(range))
+              }
+            }
+            case None => {
+              if (minLimit < range.start) {
+                val newRange = SeedRange(seedRange.start, Math.min(seedRange.end, maxLimit))
+                ((accRanges :+ newRange), Some(range))
+              } else {
+                (accRanges, Some(range))
+              }
+            }
+          }
+
+        })._1
+      }
+
+
+      val seedMapRange = maps.find(_.origin == "seed").get.ranges.map(range => {
+        val start = range.sourceStart
+        val end = range.sourceStart + range.length
+        SeedRange(start, end)
+      })
+
+      // split range if it is not in one range
+      val intersectionRangeSeedMatch = seedMapRange.flatMap(range => {
+        seedRange.intersectRange(range)
+      })
+
+      val intersectionWhitoutRangeMatch = getNonMatchingIntersectionRange(seedRange, intersectionRangeSeedMatch)
+      println(s"intersectionWhitoutRangeMatch: $intersectionWhitoutRangeMatch")
+      println(s"seedMapRange: $intersectionRangeSeedMatch")
+
+    }
+
+    /**
+     * def findIntervalForMinimumLocation(): InputRange = {
+     * val locationMap = maps.find(_.destination == "location").get
+     * val minDestinationRange = locationMap.ranges.sortBy(_.destinationStart).flatMap(possibleMinRange => {
+     * val foundedSeeds = (possibleMinRange.sourceStart to possibleMinRange.sourceStart + possibleMinRange.length).map(upwardAll(_)).toList
+     * foundedSeeds
+     * }).toSet
+     *
+     * println(s"foundedSeeds: ${minDestinationRange.size}")
+     * println(s"foundedSeeds: ${minDestinationRange}")
+     * ???
+     * }
+     */
   }
 
   def readSeeds(file: String): List[Seed] = {
@@ -125,6 +188,7 @@ object Day5 extends IOApp.Simple {
       almanac = readAlmanac(file)
       seedRange = readSeedsWithRange(file)
       possibleSeeds = seedRange.map(countPossibleSeedsFromInput).sum
+      intersect = seedRange.map(almanac.findFitRangeForSeedRange)
       _ = println(s"possibleSeeds: $possibleSeeds")
 
     } yield ()
