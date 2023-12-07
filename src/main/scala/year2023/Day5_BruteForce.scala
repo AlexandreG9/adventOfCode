@@ -12,7 +12,11 @@ object Day5_BruteForce extends IOApp.Simple {
   override def runtimeConfig =
     super.runtimeConfig.copy(cpuStarvationCheckInitialDelay = Duration.Inf)
 
-  case class Seed(value: Long)
+  case class Seed(value: Long) {
+    def transformToSeedRange(): SeedRange = {
+      SeedRange(value, 1)
+    }
+  }
 
   case class SeedWithResult(value: Long, result: Long)
 
@@ -207,10 +211,11 @@ object Day5_BruteForce extends IOApp.Simple {
       file <- readWholeFile(path)
       almanac = readAlmanac(file)
       seedRange = readSeedsWithRange(file)
+      // seedRange = readSeeds(file).map(_.transformToSeedRange())
       _ <- IO(println("--- Start ---"))
       _ <- IO(println(s"seedRange: ${seedRange.mkString(" ")})}"))
       currentMillis = System.currentTimeMillis()
-      listMinSeed <- seedRange.map(almanac.hardComputeMinLocationFromSeedRange).sequence
+      listMinSeed <- seedRange.map(almanac.hardComputeMinLocationFromSeedRange).parSequence
       _ <- IO(println(s"listMinSeed: ${listMinSeed}"))
       minSeed = listMinSeed.minBy(_.result)
       _ <- IO(println("--- Finished ---"))
