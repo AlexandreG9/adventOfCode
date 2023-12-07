@@ -37,7 +37,7 @@ object Day5_BruteForce extends IOApp.Simple {
   }
 
   case class Range(destinationStart: Long, sourceStart: Long, length: Long) {
-    def isSupportedInput(value: Long): Boolean = value >= sourceStart && value <= sourceStart + length
+    def isSupportedInput(value: Long): Boolean = value >= sourceStart && value <= sourceStart + (length - 1)
 
     def translate(value: Long): Long = {
       val delta = value - sourceStart
@@ -220,7 +220,7 @@ object Day5_BruteForce extends IOApp.Simple {
       minSeed = listMinSeed.minBy(_.result)
       _ <- IO(println("--- Finished ---"))
       _ <- IO(println(s"Time taken: ${System.currentTimeMillis() - currentMillis} ms"))
-      _ <- IO(println(s"minLocation: ${minSeed}"))
+      _ <- IO(println(s"minLocation found: ${minSeed.result}"))
     } yield ()
   }
 }
