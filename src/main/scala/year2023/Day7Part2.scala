@@ -1,14 +1,12 @@
 package year2023
 
 import cats.effect.{IO, IOApp}
-import year2022.utils.FileUtils.{readLine, readWholeFile}
+import year2022.utils.FileUtils.readLine
 import year2023.HandType.HandType
 
-import scala.collection.immutable.{NumericRange, Set}
+import java.rmi.UnexpectedException
 
 
-// Not 251785912
-// Not 251785912
 object Day7Part2 extends IOApp.Simple {
   val path = "/Users/alexandre/IdeaProjects/adventOfCode/2023/input-day7.txt"
 
@@ -33,20 +31,17 @@ object Day7Part2 extends IOApp.Simple {
   )
 
   case class Hand(value: String) extends Comparable[Hand] {
-    private val valueArr = value.toCharArray.groupBy(identity).filter(_._1 != 'J').values.map(_.size)
-    private val numberOfJoker = value.toCharArray.count(_ == 'J')
 
     def getHandType(): HandType = {
-      println(s"get hand type for: ${value}")
+      val valueArr = value.toCharArray.groupBy(identity).filter(_._1 != 'J').values.map(_.size)
 
       def evaluateCards(cardsType: List[Int]): HandType = {
+        val numberOfJoker = value.toCharArray.count(_ == 'J')
 
         case class HandTypeResolver(maybeFullHouse: Boolean, maybeThreeOfAKind: Boolean, maybeTwoPair: Boolean, valueFound: Option[HandType])
 
         val list = cardsType.sorted.reverse
         val listWithJoker = list.head + numberOfJoker :: list.tail
-
-        println(s"listWithJoker $listWithJoker")
 
         val maybeFind = listWithJoker.foldLeft(HandTypeResolver(false, false, false, None)) { case (acc, value) =>
           acc.valueFound match {
@@ -68,17 +63,14 @@ object Day7Part2 extends IOApp.Simple {
             HandType.ThreeOfAKind
           } else if (maybeFind.maybeTwoPair) {
             HandType.OnePair
-          } else ???
+          } else throw new UnexpectedException(s"Unexpected value: ${value}")
         }
       }
 
-      val handType = if (valueArr.size == 5) HandType.HighCard // No joker + 5 different cards
+      if (valueArr.size == 5) HandType.HighCard // No joker + 5 different cards
       else if (valueArr.size == 0) HandType.FiveOfKind // 5 joker
-      else if (valueArr.size == 1) HandType.FiveOfKind // 4 cards + 1 joker
+      else if (valueArr.size == 1) HandType.FiveOfKind // 4 same cards + 1 joker
       else evaluateCards(valueArr.toList.sorted.reverse)
-
-      println(s"founded handType : ${handType}")
-      handType
     }
 
 
@@ -108,8 +100,8 @@ object Day7Part2 extends IOApp.Simple {
       file <- readLine(path)
       bets = file.map(parseLine)
       orderedBets = bets.sortBy(_.hand)
-      value = orderedBets.zipWithIndex.map { case (bet, index) => bet.bid * (index + 1) }.sum
-      _ <- IO(println(value))
+      result = orderedBets.zipWithIndex.map { case (bet, index) => bet.bid * (index + 1) }.sum
+      _ <- IO(println(result))
     } yield ()
   }
 }
