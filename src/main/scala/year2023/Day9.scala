@@ -5,30 +5,23 @@ import year2022.utils.FileUtils.readLine
 
 object Day9 extends IOApp.Simple {
 
-  val path = "/Users/alexandreguiheneuf/IdeaProjects/adventOfCode/2023/input-day9.txt"
+  val path = "/Users/alexandre/IdeaProjects/adventOfCode/2023/input-day9.txt"
 
-  def findNextNumber(numbers: List[Int]): Int = {
-    def getIntervals(numbers: List[Int]): List[Int] =
-      numbers.sliding(2).map(l => l.head - l.last).toList
+  def parseLine(line: String): List[Long] =
+    """-?\d+""".r.findAllMatchIn(line).map(m => m.group(0).toLong).toList
 
-
-    def loop(acc: List[List[Int]]): List[List[Int]] = {
-        if (acc.last.forall(v => v == 0)) acc
-        else {
-          val nextIntervals = getIntervals(acc.last)
-          loop(acc :+ nextIntervals)
-        }
-    }
-
-    ???
+  def findNextNumber(numbers: List[Long]): Long = {
+    if (numbers.forall(_ == 0L)) 0L
+    else numbers.last + findNextNumber(numbers.sliding(2).map(l => l.last - l.head).toList)
   }
 
   override def run: IO[Unit] = for {
     lines <- readLine(path)
-    example = List(10, 13, 16, 21, 30, 45)
-    foundValue = findNextNumber(example)
-    _ <- IO(println(s"foundValue: $foundValue"))
-    _ <- IO(println("expected value is 68"))
+    numbers = lines.map(parseLine)
+    valuePart1 = numbers.map(findNextNumber).sum
+    valuePart2 = numbers.map(_.reverse).map(findNextNumber).sum
+    _ <- IO(println(s"part1: $valuePart1"))
+    _ <- IO(println(s"part2: $valuePart2"))
   } yield ()
 
 }
